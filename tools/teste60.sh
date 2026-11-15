@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# teste60.sh <cena> <modo> [VAR=valor ...]: a mesma cena a 30 fps e num modo de 60 fps, quadro a quadro no tempo do jogo.
+# teste60.sh <scene> <mode> [VAR=value ...]: the same scene at 30 fps and in a 60 fps mode, frame by frame in game time.
 #
-#   cena: captura (andar no mato da Rota 1 até um encontro, jogar a bola) | batalha (andar para baixo: a treinadora da
-#         Floresta de Viridian, diálogo avançado com A)
-#   modo: 0 (30 fps, referência) | 1 (mundo a 60, cenas a 30 + interpolação) | 2 (tudo a 60, contadores divididos)
-# VAR=valor extras vão para o jogo (ex.: LARECOMP_WINDOW_SHOTS_REL=1 LARECOMP_WINDOW_SHOTS=... para os pares
-# intermediário/final, medidos com tools/interp_metrics.py).
+#   scene: captura (walk in the Route 1 grass until an encounter, throw the ball) | batalha (walk down: the trainer in
+#          Viridian Forest, dialogue advanced with A)
+#   mode:  0 (30 fps, reference) | 1 (world at 60, scenes at 30 + interpolation) | 2 (everything at 60, divided counters)
+# Extra VAR=value go to the game (e.g. LARECOMP_WINDOW_SHOTS_REL=1 LARECOMP_WINDOW_SHOTS=... for the in-between/final
+# pairs, measured with tools/interp_metrics.py).
 #
-# Captura imagens da cena em instantes relativos ao início dela (LARECOMP_SHOT_REL; fps60.c marca o começo): a 30 fps
-# em 30, 60, 90...; nos modos 60 em 60, 120, 180... (o mesmo tempo de jogo, se a lógica estiver na velocidade certa).
-# Saída: build/teste60/<cena>-<modo>/rel_*.png e sheet.png. Compare as folhas de 0 e do modo testado: a mesma linha deve
-# mostrar o mesmo momento da cena. Roda em turbo (LARECOMP_FPS=0): a lógica avança um passo por quadro, então os quadros
-# de jogo são idênticos aos do ritmo real.
-# A rota depende do sorteio do encontro: o número do quadro em que a cena começa varia; as imagens são relativas a ele.
+# Captures images of the scene at moments relative to its start (LARECOMP_SHOT_REL; fps60.c marks the start): at 30 fps
+# at 30, 60, 90...; in the 60 modes at 60, 120, 180... (the same game time, if the logic runs at the right speed).
+# Output: build/teste60/<scene>-<mode>/rel_*.png and sheet.png. Compare the sheets of 0 and of the tested mode: the same
+# row should show the same moment of the scene. Runs in turbo (LARECOMP_FPS=0): the logic advances one step per frame,
+# so the game frames are identical to those at real pace.
+# The route depends on the encounter roll: the frame at which the scene starts varies; the images are relative to it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PATH="/c/msys64/ucrt64/bin:/c/msys64/usr/bin:$PATH"
-cena=${1:?cena: captura ou batalha}
-modo=${2:?modo: 0, 1 ou 2}
+cena=${1:?scene: captura or batalha}
+modo=${2:?mode: 0, 1 or 2}
 shift 2
 base="400:A:6,500:A:6,1150:A:6,1300:A:6"
 case "$cena" in
@@ -25,7 +25,7 @@ case "$cena" in
              for t in $(seq 2020 120 3200); do route="$route,$t:A:6"; done; last=3300 ;;
     batalha) route="$base,1400:STICK_DOWN:400"
              for t in $(seq 1900 40 3500); do route="$route,$t:A:6"; done; last=3700 ;;
-    *) echo "cena desconhecida: $cena"; exit 1 ;;
+    *) echo "unknown scene: $cena"; exit 1 ;;
 esac
 k=1; [ "$modo" = 0 ] || k=2
 # In the 60 fps modes the world (and, in mode 2, the scenes) take two updates per game-time step: the inputs from the
@@ -42,4 +42,4 @@ tools/repro.sh "t60-$cena-$modo" "$last" "LARECOMP_INPUT=$route" "LARECOMP_SHOT_
 cp "build/repro/t60-$cena-$modo"/{rel,mid,fin}_*.png "$out/" 2>/dev/null || true
 n=$(ls "$out"/rel_*.png 2>/dev/null | wc -l)
 [ "$n" -gt 0 ] && FFMPEG=ffmpeg ./.venv/Scripts/python tools/contact_sheet.py "$out/sheet.png" $(ls "$out"/rel_*.png | sort -V) >/dev/null
-echo "$out: $n imagens (cena começou no quadro $(grep -o 'scene start [0-9]*' "logs/repro-t60-$cena-$modo.log" | head -1 | grep -o '[0-9]*$' || echo '?'))"
+echo "$out: $n images (the scene started at frame $(grep -o 'scene start [0-9]*' "logs/repro-t60-$cena-$modo.log" | head -1 | grep -o '[0-9]*$' || echo '?'))"

@@ -52,11 +52,9 @@ came; packs made for Atmosphere / LayeredFS work: translations, textures, models
 at once (where two replace the same file, the higher one in the list wins).
 Mods of the game's code (exefs, IPS patches, cheats) don't work in this port.
 
-Portugues (Brasil): para jogar em portugues, baixe a traducao PT-BR de fas do grupo Pokemon Switch Brasil, abra a pagina
-"Mods", clique em "Instalar mod..." e escolha o arquivo baixado (.rar ou .zip, do jeito que veio). Ela ja vem marcada
-na lista.
-A traducao substitui os textos em ingles e espanhol: num jogo novo, escolha English ou Espanol na tela de idioma do
-jogo. O programa abre em portugues quando o Windows esta em portugues.
+Portuguese (Brazil): the fans' PT-BR translation by the Pokemon Switch Brasil group installs like any mod ("Install a
+mod...", the downloaded .rar or .zip as it came). It replaces the English and Spanish texts: in a new game, pick English
+or Espanol on the game's language screen. The launcher itself opens in Portuguese when Windows is in Portuguese.
 
 Controls
 --------

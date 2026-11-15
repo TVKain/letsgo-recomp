@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# repro.sh <nome> [frames a capturar] [VAR=valor ...]: reprodução determinística a partir do save.
+# repro.sh <name> [frames to capture] [VAR=value ...]: a deterministic reproduction from a save.
 #
-# Carrega uma CÓPIA do save (save/ fica intocado) em build/test-save, ignora o controle real e aperta A só nos
-# momentos mapeados (seleção de controle, confirmação, título, continuar). Do frame ~1150 em diante o jogo está no
-# gameplay (Rota 1). Saída: logs/repro-<nome>.log e build/repro/<nome>/frame_N.png (+ contact.png).
-# Um teste por vez: todos usam build/frames e build/test-save.
+# Loads a COPY of the save (save/ stays untouched) into build/test-save, ignores the real controller and presses A only
+# at the mapped moments (controller selection, confirmation, title, continue). From frame ~1150 on the game is in
+# gameplay (Route 1). Output: logs/repro-<name>.log and build/repro/<name>/frame_N.png (+ contact.png).
+# One test at a time: they all use build/frames and build/test-save.
 #
-# Exemplo:  tools/repro.sh base 1300,1400
-#           tools/repro.sh paleta 1300,1400 LARECOMP_VK_SKIN_IDENTITY=1
-#           EXE=./build/jogo/lasrecomp.exe tools/repro.sh jogo 1400   (a cópia de make jogo)
-#           RENDERDOC=1 tools/repro.sh rdc 1300 LARECOMP_RENDERDOC_AT=1290   (captura em build/rdc/)
-#           SAVE="$HOME/Downloads/savedata.bin" tools/repro.sh outro 1400   (outro save, copiado)
-# Turbo (padrão): LARECOMP_FPS=0, sem a trava de 30 fps. A lógica anda um passo por quadro, então os mesmos quadros
-# chegam ~4x mais rápido e os scripts (contados em quadros) valem igual: cenário, câmera e posições saem idênticos; só
-# animações de espera ligadas ao tempo real ficam em outra fase. TURBO=0 volta ao ritmo real (medir fps, áudio).
+# Examples: tools/repro.sh base 1300,1400
+#           tools/repro.sh palette 1300,1400 LARECOMP_VK_SKIN_IDENTITY=1
+#           EXE=./build/jogo/lasrecomp.exe tools/repro.sh game 1400   (the copy made by make jogo)
+#           RENDERDOC=1 tools/repro.sh rdc 1300 LARECOMP_RENDERDOC_AT=1290   (capture in build/rdc/)
+#           SAVE="$HOME/Downloads/savedata.bin" tools/repro.sh other 1400   (another save, copied)
+# Turbo (default): LARECOMP_FPS=0, without the 30 fps cap. The logic advances one step per frame, so the same frames
+# arrive ~4x faster and the scripts (counted in frames) still hold: scenery, camera and positions come out identical;
+# only idle animations tied to real time end up in another phase. TURBO=0 goes back to real pace (measuring fps, audio).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PATH="/c/msys64/ucrt64/bin:/c/msys64/usr/bin:$PATH"
 
-name=${1:?nome do teste}
+name=${1:?test name}
 shots=${2:-1400}
 shift $(( $# >= 2 ? 2 : 1 ))
 
@@ -46,7 +46,7 @@ pid=$!
 last_png=$(printf "build/frames/frame_%05d.png" "$last")
 for _ in $(seq 1 "${WAIT:-240}"); do  # (WAIT=<seconds>: how long to wait for the last frame; long scenes need more)
     [ -f "$last_png" ] && break
-    grep -q "FATAL\|exception c0" "logs/repro-$name.log" && { echo "CRASH: veja logs/repro-$name.log"; break; }
+    grep -q "FATAL\|exception c0" "logs/repro-$name.log" && { echo "CRASH: see logs/repro-$name.log"; break; }
     sleep 1
 done
 sleep 1  # (the screenshot file is written; let the log catch up)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bateria.sh <eevee|pikachu|ambos> <mundo|menus|saida|todas> [VAR=valor ...]: the regression battery (docs/DEPURACAO.md).
+# bateria.sh <eevee|pikachu|ambos> <mundo|menus|saida|todas> [VAR=value ...]: the regression battery (docs/DEBUGGING.md).
 #
 # Each route is a fixed input script from the same save (a copy of build/user-save: Pewter City), run in turbo (same
 # frames every run). The frames go straight to ONE raw file (LARECOMP_SHOT_RAW, 480x270 RGB per frame, no PNG, no ffmpeg),
@@ -17,8 +17,8 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export PATH="/c/msys64/ucrt64/bin:/c/msys64/usr/bin:$PATH"
-jogo=${1:?jogo: eevee, pikachu ou ambos}
-rota=${2:?rota: mundo, menus, saida ou todas}
+jogo=${1:?game: eevee, pikachu or ambos (both)}
+rota=${2:?route: mundo (world), menus, saida (exit) or todas (all)}
 shift 2
 TAG=${BAT_TAG:-${TAG:-run}}; REPS=${REPS:-1}; PAR=${PAR:-6}; TIMEOUT=${TIMEOUT:-300}
 
